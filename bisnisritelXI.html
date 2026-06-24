@@ -1,0 +1,679 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Teknologi Ritel Digital</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg: #0d0f14; --surface: #161920; --surface2: #1e2230; --border: #2a2f42;
+    --accent: #4f8ef7; --accent2: #7c3aed; --accent3: #10b981; --accent4: #f59e0b;
+    --text: #e8eaf0; --muted: #8891a8;
+  }
+  body { font-family: 'Plus Jakarta Sans', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+
+  /* ── TOP BAR ── */
+  .topbar {
+    background: rgba(13,15,20,0.95); backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+    padding: 0 1.5rem; height: 52px;
+    display: flex; align-items: center; justify-content: space-between;
+    position: sticky; top: 0; z-index: 200;
+  }
+  .topbar .logo { font-family: 'DM Mono', monospace; font-size: 0.72rem; font-weight: 700; color: var(--accent); letter-spacing: 0.12em; text-transform: uppercase; }
+  .topbar .badge { font-family: 'DM Mono', monospace; font-size: 0.68rem; color: var(--muted); background: var(--surface2); border: 1px solid var(--border); padding: 0.2rem 0.7rem; border-radius: 999px; }
+
+  /* ── LAYOUT ── */
+  .app { display: flex; height: calc(100vh - 52px); overflow: hidden; }
+
+  /* ── SIDEBAR ── */
+  .sidebar {
+    width: 240px; min-width: 240px; background: var(--surface);
+    border-right: 1px solid var(--border);
+    overflow-y: auto; padding: 1rem 0;
+    display: flex; flex-direction: column; gap: 0.15rem;
+  }
+  .sidebar-section { padding: 0.4rem 1rem 0.2rem; font-family: 'DM Mono', monospace; font-size: 0.6rem; letter-spacing: 0.1em; color: var(--muted); text-transform: uppercase; margin-top: 0.5rem; }
+  .nav-btn {
+    display: flex; align-items: center; gap: 0.7rem;
+    padding: 0.6rem 1rem; margin: 0 0.5rem; border-radius: 8px;
+    cursor: pointer; border: none; background: transparent;
+    color: var(--muted); font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 0.82rem; text-align: left; width: calc(100% - 1rem);
+    transition: all 0.15s;
+  }
+  .nav-btn:hover { background: var(--surface2); color: var(--text); }
+  .nav-btn.active { background: rgba(79,142,247,0.12); color: var(--accent); }
+  .nav-btn .icon { font-size: 1rem; min-width: 20px; text-align: center; }
+  .nav-btn .label { flex: 1; }
+  .nav-btn .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--accent); opacity: 0; transition: opacity 0.15s; }
+  .nav-btn.active .dot { opacity: 1; }
+
+  /* ── CONTENT AREA ── */
+  .content { flex: 1; overflow-y: auto; padding: 2.5rem 3rem; }
+  @media (max-width: 700px) { .sidebar { width: 52px; min-width: 52px; } .nav-btn .label, .nav-btn .dot, .sidebar-section { display: none; } .content { padding: 1.5rem; } }
+
+  /* ── PANELS ── */
+  .panel { display: none; animation: fadeIn 0.25s ease; }
+  .panel.active { display: block; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+  /* ── TYPOGRAPHY ── */
+  .eyebrow { font-family: 'DM Mono', monospace; font-size: 0.68rem; color: var(--accent); letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 0.5rem; }
+  .panel-title { font-size: 1.8rem; font-weight: 800; letter-spacing: -0.02em; margin-bottom: 0.5rem; line-height: 1.15; }
+  .panel-desc { color: var(--muted); font-size: 0.9rem; margin-bottom: 2rem; max-width: 560px; line-height: 1.7; }
+
+  /* ── HERO PANEL ── */
+  .hero-glow { position: relative; text-align: center; padding: 3rem 0 2rem; }
+  .hero-glow::before { content: ''; position: absolute; top: 0; left: 50%; transform: translateX(-50%); width: 500px; height: 300px; background: radial-gradient(ellipse, rgba(79,142,247,0.14) 0%, transparent 70%); pointer-events: none; }
+  .hero-glow h1 { font-size: clamp(1.8rem, 4vw, 3rem); font-weight: 800; letter-spacing: -0.03em; line-height: 1.1; margin-bottom: 1rem; }
+  .hero-glow h1 span { background: linear-gradient(135deg, #4f8ef7, #7c3aed); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+  .hero-glow p { color: var(--muted); max-width: 480px; margin: 0 auto 2rem; font-size: 0.95rem; }
+  .hero-meta { display: flex; justify-content: center; gap: 1.5rem; flex-wrap: wrap; }
+  .hero-meta span { font-size: 0.75rem; font-family: 'DM Mono', monospace; color: var(--muted); background: var(--surface); border: 1px solid var(--border); padding: 0.35rem 0.8rem; border-radius: 999px; }
+  .start-btn { margin-top: 2rem; display: inline-flex; align-items: center; gap: 0.5rem; background: var(--accent); color: #fff; border: none; padding: 0.7rem 1.5rem; border-radius: 10px; font-family: 'Plus Jakarta Sans', sans-serif; font-size: 0.88rem; font-weight: 700; cursor: pointer; transition: opacity 0.2s; }
+  .start-btn:hover { opacity: 0.85; }
+  .menu-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 0.8rem; margin-top: 2rem; }
+  .menu-tile { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 1.2rem; cursor: pointer; transition: all 0.2s; text-align: center; }
+  .menu-tile:hover { border-color: var(--accent); transform: translateY(-2px); }
+  .menu-tile .t-icon { font-size: 1.8rem; margin-bottom: 0.5rem; }
+  .menu-tile h4 { font-size: 0.82rem; font-weight: 700; }
+  .menu-tile p { font-size: 0.72rem; color: var(--muted); margin-top: 0.2rem; }
+
+  /* ── CARDS ── */
+  .card { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 1.4rem; }
+  .card-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; }
+  .card h4 { font-size: 0.9rem; font-weight: 700; margin-bottom: 0.4rem; }
+  .card p { font-size: 0.82rem; color: var(--muted); line-height: 1.55; }
+  .card .c-icon { font-size: 1.5rem; margin-bottom: 0.7rem; }
+
+  /* ── PRINSIP ── */
+  .prinsip-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 1.3rem; transition: all 0.2s; }
+  .prinsip-card:hover { border-color: var(--accent); transform: translateY(-2px); }
+
+  /* ── FAKTA ── */
+  .fakta-item { background: var(--surface); border-left: 3px solid var(--accent); border-radius: 0 10px 10px 0; padding: 1rem 1.2rem; margin-bottom: 0.8rem; display: flex; gap: 1rem; border: 1px solid var(--border); border-left: 3px solid var(--accent); }
+  .fakta-num { font-family: 'DM Mono', monospace; font-size: 0.7rem; color: var(--accent); min-width: 24px; padding-top: 2px; }
+  .fakta-item p { font-size: 0.86rem; color: var(--muted); line-height: 1.6; }
+  .fakta-item strong { color: var(--text); }
+
+  /* ── PILAR ── */
+  .pilar-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 1rem; }
+  .pilar-card { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 1.5rem; transition: all 0.2s; }
+  .pilar-card:hover { transform: translateY(-3px); }
+  .pilar-card.c1 { border-top: 3px solid var(--accent); }
+  .pilar-card.c2 { border-top: 3px solid var(--accent2); }
+  .pilar-card.c3 { border-top: 3px solid var(--accent3); }
+  .pilar-card.c4 { border-top: 3px solid var(--accent4); }
+  .p-tag { display: inline-block; font-size: 0.65rem; font-family: 'DM Mono', monospace; padding: 0.2rem 0.55rem; border-radius: 4px; margin-bottom: 0.8rem; font-weight: 500; text-transform: uppercase; letter-spacing: 0.06em; }
+  .c1 .p-tag { background: rgba(79,142,247,0.12); color: var(--accent); }
+  .c2 .p-tag { background: rgba(124,58,237,0.12); color: #a78bfa; }
+  .c3 .p-tag { background: rgba(16,185,129,0.12); color: var(--accent3); }
+  .c4 .p-tag { background: rgba(245,158,11,0.12); color: var(--accent4); }
+  .pilar-card h4 { font-size: 0.95rem; font-weight: 700; margin-bottom: 0.5rem; }
+  .pilar-card .def { font-size: 0.82rem; color: var(--muted); margin-bottom: 0.8rem; line-height: 1.5; }
+  .pilar-card .contoh-lbl { font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); margin-bottom: 0.3rem; }
+  .pilar-card .contoh { font-size: 0.82rem; font-weight: 600; }
+
+  /* ── STEPS ── */
+  .steps { display: flex; flex-direction: column; gap: 0; }
+  .step { display: flex; gap: 1rem; padding: 1rem 0; position: relative; cursor: pointer; }
+  .step-left { display: flex; flex-direction: column; align-items: center; }
+  .step-num { width: 36px; height: 36px; min-width: 36px; background: var(--surface2); border: 2px solid var(--border); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-family: 'DM Mono', monospace; font-size: 0.78rem; color: var(--muted); transition: all 0.2s; z-index: 1; }
+  .step.done .step-num { background: rgba(16,185,129,0.15); border-color: var(--accent3); color: var(--accent3); }
+  .step.current .step-num { background: rgba(79,142,247,0.2); border-color: var(--accent); color: var(--accent); box-shadow: 0 0 0 4px rgba(79,142,247,0.1); }
+  .step-line { flex: 1; width: 2px; background: var(--border); margin: 4px 0; min-height: 20px; }
+  .step:last-child .step-line { display: none; }
+  .step-body { padding-top: 6px; }
+  .step-body h4 { font-size: 0.9rem; font-weight: 600; margin-bottom: 0.2rem; }
+  .step-body p { font-size: 0.82rem; color: var(--muted); }
+  .step-progress { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 1rem 1.4rem; margin-bottom: 1.5rem; display: flex; align-items: center; gap: 1rem; }
+  .progress-bar { flex: 1; height: 6px; background: var(--surface2); border-radius: 999px; overflow: hidden; }
+  .progress-fill { height: 100%; background: linear-gradient(90deg, var(--accent), var(--accent3)); border-radius: 999px; transition: width 0.4s ease; }
+  .progress-text { font-family: 'DM Mono', monospace; font-size: 0.72rem; color: var(--muted); min-width: 40px; text-align: right; }
+  .step-nav { display: flex; gap: 0.5rem; margin-top: 1rem; }
+  .step-nav button { padding: 0.5rem 1.1rem; border-radius: 8px; border: 1px solid var(--border); background: var(--surface); color: var(--text); font-family: 'Plus Jakarta Sans', sans-serif; font-size: 0.8rem; cursor: pointer; transition: all 0.15s; }
+  .step-nav button:hover { border-color: var(--accent); color: var(--accent); }
+  .step-nav button.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+  .step-nav button.primary:hover { opacity: 0.85; }
+
+  /* ── STUDI KASUS ── */
+  .kasus-card { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; overflow: hidden; }
+  .kasus-header { background: linear-gradient(135deg, rgba(16,185,129,0.1), rgba(79,142,247,0.06)); border-bottom: 1px solid var(--border); padding: 1.4rem 1.8rem; display: flex; gap: 1rem; align-items: center; }
+  .avatar { width: 48px; height: 48px; border-radius: 50%; background: rgba(16,185,129,0.15); border: 2px solid rgba(16,185,129,0.3); display: flex; align-items: center; justify-content: center; font-size: 1.4rem; }
+  .kasus-header h3 { font-size: 0.95rem; font-weight: 700; }
+  .kasus-header p { font-size: 0.78rem; color: var(--muted); }
+  .kasus-body { padding: 1.4rem 1.8rem; }
+  .k-steps { display: flex; flex-wrap: wrap; gap: 0.5rem; margin: 0.8rem 0 1rem; }
+  .k-step { background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; padding: 0.45rem 0.85rem; font-size: 0.78rem; display: flex; align-items: center; gap: 0.4rem; cursor: pointer; transition: all 0.2s; }
+  .k-step:hover { border-color: var(--accent3); color: var(--accent3); }
+  .k-step .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--accent3); }
+  .kasus-result { background: rgba(16,185,129,0.06); border: 1px solid rgba(16,185,129,0.2); border-radius: 10px; padding: 1rem 1.2rem; margin-top: 1rem; font-size: 0.84rem; color: var(--muted); line-height: 1.65; }
+  .kasus-result strong { color: var(--accent3); }
+
+  /* ── AKTIVITAS ── */
+  .platform-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 0.8rem; margin-bottom: 1.5rem; }
+  .platform-card { background: var(--surface); border: 2px solid var(--border); border-radius: 12px; padding: 1.1rem; cursor: pointer; transition: all 0.2s; text-align: center; }
+  .platform-card:hover { border-color: var(--accent); transform: translateY(-2px); }
+  .platform-card.selected { border-color: var(--accent); background: rgba(79,142,247,0.08); }
+  .platform-card .p-emoji { font-size: 1.8rem; margin-bottom: 0.4rem; }
+  .platform-card h4 { font-size: 0.82rem; font-weight: 700; }
+  .platform-card span { font-size: 0.7rem; color: var(--muted); }
+  .question-list { display: flex; flex-direction: column; gap: 0.7rem; }
+  .q-item { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 1rem 1.2rem; display: flex; gap: 0.8rem; }
+  .q-num { font-family: 'DM Mono', monospace; font-size: 0.7rem; color: var(--accent4); min-width: 24px; padding-top: 2px; }
+  .q-item p { font-size: 0.85rem; color: var(--muted); }
+  .q-item strong { color: var(--text); }
+  .selected-platform-banner { background: rgba(79,142,247,0.08); border: 1px solid rgba(79,142,247,0.25); border-radius: 10px; padding: 0.7rem 1rem; margin-bottom: 1.2rem; font-size: 0.82rem; display: none; align-items: center; gap: 0.5rem; }
+  .selected-platform-banner.show { display: flex; }
+
+  /* ── QUIZ ── */
+  .quiz-card { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 1.5rem; margin-bottom: 1rem; }
+  .quiz-q { font-size: 0.92rem; font-weight: 600; margin-bottom: 1rem; }
+  .quiz-opts { display: flex; flex-direction: column; gap: 0.5rem; }
+  .quiz-opt { padding: 0.7rem 1rem; border: 1px solid var(--border); border-radius: 8px; cursor: pointer; font-size: 0.84rem; transition: all 0.15s; }
+  .quiz-opt:hover { border-color: var(--accent); background: rgba(79,142,247,0.06); }
+  .quiz-opt.correct { border-color: var(--accent3); background: rgba(16,185,129,0.1); color: var(--accent3); }
+  .quiz-opt.wrong { border-color: #ef4444; background: rgba(239,68,68,0.08); color: #f87171; }
+  .quiz-score { background: var(--surface2); border: 1px solid var(--border); border-radius: 12px; padding: 1.2rem; text-align: center; margin-top: 1rem; display: none; }
+  .quiz-score .score-num { font-size: 2.5rem; font-weight: 800; color: var(--accent3); }
+  .quiz-score p { color: var(--muted); font-size: 0.85rem; margin-top: 0.3rem; }
+  .quiz-score button { margin-top: 1rem; padding: 0.5rem 1.2rem; border-radius: 8px; background: var(--accent); border: none; color: #fff; font-family: 'Plus Jakarta Sans', sans-serif; font-size: 0.82rem; font-weight: 700; cursor: pointer; }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <span class="logo">BisRit XI · Ritel Digital</span>
+  <span class="badge">Perencanaan Pengajaran</span>
+</div>
+
+<div class="app">
+  <!-- SIDEBAR -->
+  <nav class="sidebar">
+    <div class="sidebar-section">Menu Utama</div>
+    <button class="nav-btn active" onclick="showPanel('home')" id="btn-home">
+      <span class="icon">🏠</span><span class="label">Beranda</span><span class="dot"></span>
+    </button>
+    <button class="nav-btn" onclick="showPanel('tujuan')" id="btn-tujuan">
+      <span class="icon">🎯</span><span class="label">Tujuan Pembelajaran</span><span class="dot"></span>
+    </button>
+
+    <div class="sidebar-section">Materi</div>
+    <button class="nav-btn" onclick="showPanel('fakta')" id="btn-fakta">
+      <span class="icon">📊</span><span class="label">Fakta & Fenomena</span><span class="dot"></span>
+    </button>
+    <button class="nav-btn" onclick="showPanel('pilar')" id="btn-pilar">
+      <span class="icon">🏛️</span><span class="label">4 Pilar Utama</span><span class="dot"></span>
+    </button>
+    <button class="nav-btn" onclick="showPanel('prosedur')" id="btn-prosedur">
+      <span class="icon">⚙️</span><span class="label">Alur Transaksi</span><span class="dot"></span>
+    </button>
+    <button class="nav-btn" onclick="showPanel('kasus')" id="btn-kasus">
+      <span class="icon">📦</span><span class="label">Studi Kasus</span><span class="dot"></span>
+    </button>
+
+    <div class="sidebar-section">Interaktif</div>
+    <button class="nav-btn" onclick="showPanel('aktivitas')" id="btn-aktivitas">
+      <span class="icon">💬</span><span class="label">Diskusi Kelompok</span><span class="dot"></span>
+    </button>
+    <button class="nav-btn" onclick="showPanel('quiz')" id="btn-quiz">
+      <span class="icon">🧠</span><span class="label">Kuis Cepat</span><span class="dot"></span>
+    </button>
+  </nav>
+
+  <!-- MAIN CONTENT -->
+  <main class="content">
+
+    <!-- ── BERANDA ── -->
+    <div class="panel active" id="panel-home">
+      <div class="hero-glow">
+        <div class="eyebrow">📦 Kelas XI · Bisnis Ritel</div>
+        <h1>Teknologi <span>Ritel Digital</span><br>dalam Ekonomi Modern</h1>
+        <p>Pelajari e-commerce, social commerce, dan omnichannel sebagai pilar transformasi bisnis di era digital Indonesia.</p>
+        <div class="hero-meta">
+          <span>👤 Zaki Kelana Putra · 1707625114</span>
+          <span>📚 Perencanaan Pengajaran</span>
+        </div>
+        <br>
+        <button class="start-btn" onclick="showPanel('tujuan')">Mulai Belajar →</button>
+      </div>
+      <div class="menu-grid">
+        <div class="menu-tile" onclick="showPanel('tujuan')">
+          <div class="t-icon">🎯</div>
+          <h4>Tujuan Pembelajaran</h4>
+          <p>Capaian & target materi</p>
+        </div>
+        <div class="menu-tile" onclick="showPanel('fakta')">
+          <div class="t-icon">📊</div>
+          <h4>Fakta & Fenomena</h4>
+          <p>Kondisi ritel digital Indonesia</p>
+        </div>
+        <div class="menu-tile" onclick="showPanel('pilar')">
+          <div class="t-icon">🏛️</div>
+          <h4>4 Pilar Utama</h4>
+          <p>E-Commerce, Omnichannel, dll</p>
+        </div>
+        <div class="menu-tile" onclick="showPanel('prosedur')">
+          <div class="t-icon">⚙️</div>
+          <h4>Alur Transaksi</h4>
+          <p>7 langkah proses digital</p>
+        </div>
+        <div class="menu-tile" onclick="showPanel('kasus')">
+          <div class="t-icon">📦</div>
+          <h4>Studi Kasus</h4>
+          <p>Kisah sukses Pak Joko</p>
+        </div>
+        <div class="menu-tile" onclick="showPanel('quiz')">
+          <div class="t-icon">🧠</div>
+          <h4>Kuis Cepat</h4>
+          <p>Uji pemahamanmu!</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── TUJUAN ── -->
+    <div class="panel" id="panel-tujuan">
+      <div class="eyebrow">A. Tujuan Pembelajaran</div>
+      <div class="panel-title">Apa yang Kamu Pelajari?</div>
+      <div class="panel-desc">Capaian pembelajaran untuk Kelas XI Bisnis Ritel pada materi ini.</div>
+      <div class="card" style="background:linear-gradient(135deg,rgba(79,142,247,0.08),rgba(124,58,237,0.07));border-color:rgba(79,142,247,0.2);display:flex;gap:1.2rem;align-items:flex-start;">
+        <div style="font-size:2rem;min-width:48px;height:48px;background:rgba(79,142,247,0.12);border-radius:10px;display:flex;align-items:center;justify-content:center;">🎯</div>
+        <div>
+          <h4 style="margin-bottom:0.5rem;">Capaian Pembelajaran</h4>
+          <p style="font-size:0.88rem;line-height:1.7;">Peserta didik Kelas XI Bisnis Ritel dapat <strong style="color:var(--text)">menjelaskan pengertian teknologi ritel digital</strong> — meliputi e-commerce, social commerce, dan omnichannel — dengan benar setelah mengamati berbagai platform digital yang berkembang saat ini.</p>
+        </div>
+      </div>
+      <br>
+      <div class="eyebrow" style="margin-top:1rem;">B. Prinsip Pengembangan Materi</div>
+      <h3 style="font-size:1.1rem;font-weight:700;margin-bottom:1rem;">Landasan Materi Ini</h3>
+      <div class="card-grid">
+        <div class="prinsip-card"><div class="c-icon">🔗</div><h4>Relevan</h4><p>Dekat dengan kehidupan siswa yang sudah sering pakai Shopee, Tokopedia, TikTok Shop, dan Instagram Shop.</p></div>
+        <div class="prinsip-card"><div class="c-icon">🌍</div><h4>Kontekstual</h4><p>Menghubungkan teori ekonomi dengan aktivitas jual-beli nyata yang terjadi sehari-hari.</p></div>
+        <div class="prinsip-card"><div class="c-icon">📐</div><h4>Sistematis</h4><p>Dimulai dari pengertian, jenis, manfaat, hingga penerapan secara runtut dan terstruktur.</p></div>
+        <div class="prinsip-card"><div class="c-icon">⚡</div><h4>Aktual</h4><p>Membahas perkembangan ekonomi digital dan transformasi bisnis terkini di era internet Indonesia.</p></div>
+      </div>
+      <div style="margin-top:1.5rem;display:flex;gap:0.5rem;">
+        <button class="step-nav" style="padding:0.5rem 1.1rem;border-radius:8px;border:1px solid var(--accent);background:var(--accent);color:#fff;font-family:'Plus Jakarta Sans',sans-serif;font-size:0.82rem;cursor:pointer;" onclick="showPanel('fakta')">Lanjut: Fakta & Fenomena →</button>
+      </div>
+    </div>
+
+    <!-- ── FAKTA ── -->
+    <div class="panel" id="panel-fakta">
+      <div class="eyebrow">C. Uraian Materi · Fakta</div>
+      <div class="panel-title">Fenomena Ritel Digital Indonesia</div>
+      <div class="panel-desc">Mengapa transformasi digital di sektor ritel tidak bisa diabaikan?</div>
+      <div class="fakta-item"><span class="fakta-num">01</span><p><strong>Pergeseran Budaya Belanja:</strong> Konsumen modern, terutama generasi Z, lebih memilih membandingkan harga 5 toko sekaligus melalui layar ponsel dalam hitungan detik — tanpa harus ke mal.</p></div>
+      <div class="fakta-item"><span class="fakta-num">02</span><p><strong>Ledakan Pasar Digital Indonesia:</strong> Indonesia adalah salah satu pasar ekonomi digital dengan pertumbuhan tercepat di Asia Tenggara. Platform seperti Shopee, Tokopedia, Lazada, dan TikTok Shop (Shop|Tokopedia) telah menjadi "pasar baru" yang tidak pernah tidur 24 jam sehari.</p></div>
+      <div class="fakta-item"><span class="fakta-num">03</span><p><strong>Ritel Fisik: Adaptasi atau Mati:</strong> Banyak pusat perbelanjaan konvensional sepi karena gagal bertransformasi. Toko fisik yang bertahan adalah mereka yang menyambungkan tokonya dengan sistem online.</p></div>
+      <div class="fakta-item"><span class="fakta-num">04</span><p><strong>Ekosistem Cashless:</strong> Kehadiran QRIS, e-wallet (GoPay, OVO, DANA), serta fitur PayLater membuat transaksi ritel digital menjadi sangat instan dan minim hambatan psikologis.</p></div>
+      <div style="margin-top:1.5rem;display:flex;gap:0.5rem;">
+        <button style="padding:0.5rem 1.1rem;border-radius:8px;border:1px solid var(--border);background:var(--surface);color:var(--text);font-family:'Plus Jakarta Sans',sans-serif;font-size:0.82rem;cursor:pointer;" onclick="showPanel('tujuan')">← Kembali</button>
+        <button style="padding:0.5rem 1.1rem;border-radius:8px;border:1px solid var(--accent);background:var(--accent);color:#fff;font-family:'Plus Jakarta Sans',sans-serif;font-size:0.82rem;cursor:pointer;" onclick="showPanel('pilar')">Lanjut: 4 Pilar Utama →</button>
+      </div>
+    </div>
+
+    <!-- ── PILAR ── -->
+    <div class="panel" id="panel-pilar">
+      <div class="eyebrow">C. Uraian Materi · Konsep</div>
+      <div class="panel-title">4 Pilar Utama Ritel Digital</div>
+      <div class="panel-desc">Kenali perbedaan dan contoh nyata setiap istilah kunci berikut.</div>
+      <div class="pilar-grid">
+        <div class="pilar-card c1">
+          <div class="p-tag">Fondasi</div>
+          <h4>Teknologi Ritel Digital</h4>
+          <p class="def">Penggunaan TI dan internet untuk mengelola seluruh proses penjualan, pemasaran, hingga pelayanan pelanggan agar lebih efisien.</p>
+          <div class="contoh-lbl">Contoh</div>
+          <div class="contoh">☁️ Kasir cloud Moka / Majoo di kafe</div>
+        </div>
+        <div class="pilar-card c2">
+          <div class="p-tag">E-Commerce</div>
+          <h4>Marketplace Digital</h4>
+          <p class="def">Aktivitas jual-beli murni melalui platform yang didesain khusus sebagai pasar digital.</p>
+          <div class="contoh-lbl">Contoh</div>
+          <div class="contoh">🛒 Shopee · Tokopedia · Blibli · Amazon</div>
+        </div>
+        <div class="pilar-card c3">
+          <div class="p-tag">Social Commerce</div>
+          <h4>Belanja via Sosmed</h4>
+          <p class="def">Jual-beli yang memanfaatkan ekosistem media sosial — ada unsur hiburan, interaksi, dan konten.</p>
+          <div class="contoh-lbl">Contoh</div>
+          <div class="contoh">🎵 TikTok Shop · Instagram Shopping</div>
+        </div>
+        <div class="pilar-card c4">
+          <div class="p-tag">Omnichannel</div>
+          <h4>Semua Saluran Terpadu</h4>
+          <p class="def">Menyatukan toko fisik, website, e-commerce, dan sosmed dalam satu sistem data yang sinkron.</p>
+          <div class="contoh-lbl">Contoh</div>
+          <div class="contoh">🏬 Beli di app Matahari → ambil di toko</div>
+        </div>
+      </div>
+      <div style="margin-top:1.5rem;display:flex;gap:0.5rem;">
+        <button style="padding:0.5rem 1.1rem;border-radius:8px;border:1px solid var(--border);background:var(--surface);color:var(--text);font-family:'Plus Jakarta Sans',sans-serif;font-size:0.82rem;cursor:pointer;" onclick="showPanel('fakta')">← Kembali</button>
+        <button style="padding:0.5rem 1.1rem;border-radius:8px;border:1px solid var(--accent);background:var(--accent);color:#fff;font-family:'Plus Jakarta Sans',sans-serif;font-size:0.82rem;cursor:pointer;" onclick="showPanel('prosedur')">Lanjut: Alur Transaksi →</button>
+      </div>
+    </div>
+
+    <!-- ── PROSEDUR ── -->
+    <div class="panel" id="panel-prosedur">
+      <div class="eyebrow">C. Uraian Materi · Prosedur</div>
+      <div class="panel-title">Alur Transaksi Ritel Digital</div>
+      <div class="panel-desc">Klik setiap langkah untuk menandainya selesai dipelajari.</div>
+      <div class="step-progress">
+        <span style="font-size:0.8rem;color:var(--muted);">Progress</span>
+        <div class="progress-bar"><div class="progress-fill" id="step-fill" style="width:0%"></div></div>
+        <span class="progress-text" id="step-count">0/7</span>
+      </div>
+      <div class="steps" id="steps-list">
+        <div class="step" onclick="toggleStep(0)" id="step-0"><div class="step-left"><div class="step-num">1</div><div class="step-line"></div></div><div class="step-body"><h4>📤 Unggah Produk</h4><p>Penjual mengunggah produk beserta foto, deskripsi, dan harga ke platform digital.</p></div></div>
+        <div class="step" onclick="toggleStep(1)" id="step-1"><div class="step-left"><div class="step-num">2</div><div class="step-line"></div></div><div class="step-body"><h4>🔍 Cari & Pilih Produk</h4><p>Konsumen mencari dan memilih produk yang diinginkan, membandingkan harga dan ulasan.</p></div></div>
+        <div class="step" onclick="toggleStep(2)" id="step-2"><div class="step-left"><div class="step-num">3</div><div class="step-line"></div></div><div class="step-body"><h4>💳 Pembayaran</h4><p>Konsumen melakukan pembayaran: transfer, e-wallet, atau PayLater.</p></div></div>
+        <div class="step" onclick="toggleStep(3)" id="step-3"><div class="step-left"><div class="step-num">4</div><div class="step-line"></div></div><div class="step-body"><h4>✅ Verifikasi Sistem</h4><p>Sistem memverifikasi pembayaran otomatis dan mengirim notifikasi ke penjual.</p></div></div>
+        <div class="step" onclick="toggleStep(4)" id="step-4"><div class="step-left"><div class="step-num">5</div><div class="step-line"></div></div><div class="step-body"><h4>📦 Pengemasan & Kurir</h4><p>Penjual mengemas barang dan menyerahkannya kepada jasa pengiriman.</p></div></div>
+        <div class="step" onclick="toggleStep(5)" id="step-5"><div class="step-left"><div class="step-num">6</div><div class="step-line"></div></div><div class="step-body"><h4>🚚 Pengiriman</h4><p>Barang dikirim ke alamat konsumen. Status dapat dipantau secara real-time.</p></div></div>
+        <div class="step" onclick="toggleStep(6)" id="step-6"><div class="step-left"><div class="step-num">7</div><div class="step-line"></div></div><div class="step-body"><h4>⭐ Terima Barang & Ulasan</h4><p>Konsumen menerima barang dan memberikan ulasan atau rating kepada penjual.</p></div></div>
+      </div>
+      <div style="margin-top:1.5rem;display:flex;gap:0.5rem;">
+        <button style="padding:0.5rem 1.1rem;border-radius:8px;border:1px solid var(--border);background:var(--surface);color:var(--text);font-family:'Plus Jakarta Sans',sans-serif;font-size:0.82rem;cursor:pointer;" onclick="showPanel('pilar')">← Kembali</button>
+        <button style="padding:0.5rem 1.1rem;border-radius:8px;border:1px solid var(--accent);background:var(--accent);color:#fff;font-family:'Plus Jakarta Sans',sans-serif;font-size:0.82rem;cursor:pointer;" onclick="showPanel('kasus')">Lanjut: Studi Kasus →</button>
+      </div>
+    </div>
+
+    <!-- ── KASUS ── -->
+    <div class="panel" id="panel-kasus">
+      <div class="eyebrow">D. Contoh Kontekstual</div>
+      <div class="panel-title">Studi Kasus: Pak Joko</div>
+      <div class="panel-desc">Bagaimana teknologi ritel digital mengubah usaha kecil menjadi besar.</div>
+      <div class="kasus-card">
+        <div class="kasus-header">
+          <div class="avatar">👨‍🍳</div>
+          <div><h3>Usaha Keripik Singkong · Sukabumi</h3><p>Dari warung lokal ke pasar nasional</p></div>
+        </div>
+        <div class="kasus-body">
+          <p style="font-size:0.86rem;color:var(--muted);">Awalnya, Pak Joko hanya menjual keripik di warung sekitar rumah sehingga pembelinya sangat terbatas. Ia lalu mulai memanfaatkan teknologi digital:</p>
+          <div class="k-steps">
+            <div class="k-step"><span class="dot"></span>Buka toko di Shopee & Tokopedia</div>
+            <div class="k-step"><span class="dot"></span>Pasarkan lewat video TikTok</div>
+            <div class="k-step"><span class="dot"></span>Gunakan QRIS untuk pembayaran</div>
+          </div>
+          <div class="kasus-result">✅ <strong>Hasil:</strong> Produk Pak Joko kini dapat dibeli dari berbagai daerah di Indonesia dan omzet penjualannya meningkat signifikan. Teknologi ritel digital terbukti membantu pelaku usaha memperluas pasar dan meningkatkan pendapatan.</div>
+        </div>
+      </div>
+      <div style="margin-top:1.5rem;display:flex;gap:0.5rem;">
+        <button style="padding:0.5rem 1.1rem;border-radius:8px;border:1px solid var(--border);background:var(--surface);color:var(--text);font-family:'Plus Jakarta Sans',sans-serif;font-size:0.82rem;cursor:pointer;" onclick="showPanel('prosedur')">← Kembali</button>
+        <button style="padding:0.5rem 1.1rem;border-radius:8px;border:1px solid var(--accent);background:var(--accent);color:#fff;font-family:'Plus Jakarta Sans',sans-serif;font-size:0.82rem;cursor:pointer;" onclick="showPanel('aktivitas')">Lanjut: Diskusi Kelompok →</button>
+      </div>
+    </div>
+
+    <!-- ── AKTIVITAS ── -->
+    <div class="panel" id="panel-aktivitas">
+      <div class="eyebrow">E. Aktivitas Pembelajaran</div>
+      <div class="panel-title">Diskusi Kelompok</div>
+      <div class="panel-desc">Bentuk kelompok 3–4 siswa. Pilih satu platform di bawah, lalu diskusikan pertanyaannya.</div>
+      <div class="platform-grid">
+        <div class="platform-card" onclick="selectPlatform(this,'Shopee','🛍️','E-Commerce & Social Commerce')"><div class="p-emoji">🛍️</div><h4>Shopee</h4><span>E-Commerce</span></div>
+        <div class="platform-card" onclick="selectPlatform(this,'Tokopedia','🟢','E-Commerce & Fintech')"><div class="p-emoji">🟢</div><h4>Tokopedia</h4><span>E-Commerce</span></div>
+        <div class="platform-card" onclick="selectPlatform(this,'TikTok Shop','🎵','Social Commerce & Live Shopping')"><div class="p-emoji">🎵</div><h4>TikTok Shop</h4><span>Social Commerce</span></div>
+        <div class="platform-card" onclick="selectPlatform(this,'Instagram Shop','📸','Social Commerce & Visual')"><div class="p-emoji">📸</div><h4>Instagram Shop</h4><span>Social Commerce</span></div>
+      </div>
+      <div class="selected-platform-banner" id="platform-banner">
+        <span id="platform-emoji">🛍️</span>
+        <span>Platform dipilih: <strong id="platform-name"></strong> — <span id="platform-type" style="color:var(--muted)"></span></span>
+      </div>
+      <div class="question-list">
+        <div class="q-item"><span class="q-num">Q1</span><p><strong>Fitur apa saja</strong> yang membuat konsumen tertarik menggunakan platform tersebut?</p></div>
+        <div class="q-item"><span class="q-num">Q2</span><p>Apakah termasuk <strong>e-commerce atau social commerce</strong>? Jelaskan alasannya.</p></div>
+        <div class="q-item"><span class="q-num">Q3</span><p>Apa <strong>dampak positif dan negatif</strong> platform tersebut bagi pedagang tradisional di daerahmu?</p></div>
+      </div>
+      <p style="margin-top:1rem;font-size:0.78rem;color:var(--muted);">📢 Presentasikan hasil diskusi di depan kelas.</p>
+      <div style="margin-top:1.5rem;display:flex;gap:0.5rem;">
+        <button style="padding:0.5rem 1.1rem;border-radius:8px;border:1px solid var(--accent);background:var(--accent);color:#fff;font-family:'Plus Jakarta Sans',sans-serif;font-size:0.82rem;cursor:pointer;" onclick="showPanel('quiz')">Uji Pemahaman: Kuis →</button>
+      </div>
+    </div>
+
+    <!-- ── QUIZ ── -->
+    <div class="panel" id="panel-quiz">
+      <div class="eyebrow">Interaktif · Kuis Cepat</div>
+      <div class="panel-title">Uji Pemahamanmu! 🧠</div>
+
+      <!-- Start screen -->
+      <div id="quiz-start">
+        <div class="panel-desc">20 soal pilihan ganda seputar Teknologi Ritel Digital. Setiap sesi soal diacak. Kamu punya <strong style="color:var(--accent4)">20 detik</strong> per soal.</div>
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:0.8rem;margin-bottom:1.5rem;">
+          <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.1rem;text-align:center;"><div style="font-size:1.6rem;margin-bottom:0.3rem;">❓</div><div style="font-size:1.3rem;font-weight:800;color:var(--accent);">20</div><div style="font-size:0.75rem;color:var(--muted);">Soal</div></div>
+          <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.1rem;text-align:center;"><div style="font-size:1.6rem;margin-bottom:0.3rem;">⏱️</div><div style="font-size:1.3rem;font-weight:800;color:var(--accent4);">20 dtk</div><div style="font-size:0.75rem;color:var(--muted);">Per Soal</div></div>
+          <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.1rem;text-align:center;"><div style="font-size:1.6rem;margin-bottom:0.3rem;">🔀</div><div style="font-size:1.3rem;font-weight:800;color:var(--accent3);">Acak</div><div style="font-size:0.75rem;color:var(--muted);">Setiap Sesi</div></div>
+        </div>
+        <button onclick="startQuiz()" style="padding:0.75rem 2rem;border-radius:10px;background:var(--accent);border:none;color:#fff;font-family:'Plus Jakarta Sans',sans-serif;font-size:0.92rem;font-weight:700;cursor:pointer;">Mulai Kuis ▶</button>
+      </div>
+
+      <!-- Question screen -->
+      <div id="quiz-question" style="display:none;">
+        <div style="display:flex;align-items:center;gap:1rem;margin-bottom:1.2rem;">
+          <div style="flex:1;height:6px;background:var(--surface2);border-radius:999px;overflow:hidden;"><div id="q-progress-bar" style="height:100%;background:linear-gradient(90deg,var(--accent),var(--accent3));border-radius:999px;transition:width 0.3s;"></div></div>
+          <div style="font-family:'DM Mono',monospace;font-size:0.72rem;color:var(--muted);white-space:nowrap;" id="q-counter">1 / 20</div>
+          <div id="q-timer-box" style="font-family:'DM Mono',monospace;font-size:0.82rem;font-weight:700;min-width:38px;text-align:center;padding:0.25rem 0.6rem;border-radius:8px;background:var(--surface2);color:var(--accent4);border:1px solid var(--border);">20</div>
+        </div>
+        <div class="quiz-card" id="active-qcard">
+          <div class="quiz-q" id="q-text"></div>
+          <div class="quiz-opts" id="q-opts"></div>
+        </div>
+        <div id="q-explanation" style="display:none;background:rgba(16,185,129,0.07);border:1px solid rgba(16,185,129,0.2);border-radius:10px;padding:0.9rem 1.1rem;margin-top:0.8rem;font-size:0.83rem;color:var(--muted);line-height:1.6;"></div>
+        <div style="margin-top:1rem;display:flex;justify-content:flex-end;">
+          <button id="q-next-btn" onclick="nextQuestion()" style="display:none;padding:0.55rem 1.3rem;border-radius:8px;background:var(--accent);border:none;color:#fff;font-family:'Plus Jakarta Sans',sans-serif;font-size:0.82rem;font-weight:700;cursor:pointer;">Soal Berikutnya →</button>
+        </div>
+      </div>
+
+      <!-- Score screen -->
+      <div id="quiz-result" style="display:none;">
+        <div style="background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:2rem;text-align:center;margin-bottom:1.5rem;">
+          <div style="font-size:3rem;margin-bottom:0.5rem;" id="result-emoji">🏆</div>
+          <div style="font-size:2.8rem;font-weight:800;color:var(--accent3);" id="result-score"></div>
+          <div style="color:var(--muted);font-size:0.88rem;margin-top:0.4rem;" id="result-msg"></div>
+          <div style="display:flex;justify-content:center;gap:1.5rem;margin-top:1.2rem;flex-wrap:wrap;">
+            <div><div style="font-size:1.2rem;font-weight:800;color:var(--accent3);" id="res-correct"></div><div style="font-size:0.72rem;color:var(--muted);">Benar</div></div>
+            <div><div style="font-size:1.2rem;font-weight:800;color:#f87171;" id="res-wrong"></div><div style="font-size:0.72rem;color:var(--muted);">Salah</div></div>
+            <div><div style="font-size:1.2rem;font-weight:800;color:var(--accent4);" id="res-time"></div><div style="font-size:0.72rem;color:var(--muted);">Habis Waktu</div></div>
+          </div>
+        </div>
+        <div id="result-review" style="display:flex;flex-direction:column;gap:0.6rem;margin-bottom:1.5rem;"></div>
+        <button onclick="resetQuiz()" style="padding:0.65rem 1.8rem;border-radius:10px;background:var(--accent);border:none;color:#fff;font-family:'Plus Jakarta Sans',sans-serif;font-size:0.88rem;font-weight:700;cursor:pointer;">🔀 Ulangi dengan Soal Acak</button>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<script>
+  // ── PANEL SWITCHING ──
+  function showPanel(id) {
+    document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+    document.getElementById('panel-' + id).classList.add('active');
+    const btn = document.getElementById('btn-' + id);
+    if (btn) btn.classList.add('active');
+    document.querySelector('.content').scrollTop = 0;
+  }
+
+  // ── STEP TRACKER ──
+  const stepDone = new Array(7).fill(false);
+  function toggleStep(i) {
+    stepDone[i] = !stepDone[i];
+    const el = document.getElementById('step-' + i);
+    el.classList.toggle('done', stepDone[i]);
+    el.classList.toggle('current', !stepDone[i]);
+    setTimeout(() => el.classList.remove('current'), 600);
+    const count = stepDone.filter(Boolean).length;
+    document.getElementById('step-fill').style.width = (count / 7 * 100) + '%';
+    document.getElementById('step-count').textContent = count + '/7';
+  }
+
+  // ── PLATFORM SELECT ──
+  function selectPlatform(el, name, emoji, type) {
+    document.querySelectorAll('.platform-card').forEach(c => c.classList.remove('selected'));
+    el.classList.add('selected');
+    document.getElementById('platform-name').textContent = name;
+    document.getElementById('platform-emoji').textContent = emoji;
+    document.getElementById('platform-type').textContent = type;
+    document.getElementById('platform-banner').classList.add('show');
+  }
+
+  // ── QUIZ ──
+  const allQuestions = [
+    { q: "Apa yang dimaksud dengan omnichannel dalam ritel digital?", opts: ["Hanya berjualan di satu platform online", "Menyatukan semua saluran penjualan (fisik & digital) dalam satu sistem", "Berjualan hanya lewat media sosial", "Menggunakan banyak kurir pengiriman"], ans: 1, exp: "Omnichannel adalah pendekatan yang menyatukan toko fisik, website, e-commerce, dan media sosial dalam satu sistem data yang sinkron." },
+    { q: "Platform mana yang termasuk Social Commerce?", opts: ["Tokopedia", "Blibli", "TikTok Shop", "Amazon"], ans: 2, exp: "TikTok Shop adalah social commerce karena menggabungkan hiburan, konten video, dan aktivitas jual-beli dalam satu ekosistem media sosial." },
+    { q: "Apa fungsi QRIS dalam ekosistem ritel digital?", opts: ["Mempercepat pengiriman barang", "Memudahkan transaksi cashless tanpa hambatan", "Menggantikan fungsi toko fisik", "Meningkatkan follower media sosial"], ans: 1, exp: "QRIS (Quick Response Code Indonesian Standard) memudahkan pembayaran digital tanpa uang tunai, sehingga transaksi ritel digital lebih instan." },
+    { q: "Dalam alur transaksi digital, langkah apa SETELAH konsumen membayar?", opts: ["Penjual mengunggah produk", "Sistem memverifikasi pembayaran & notifikasi ke penjual", "Konsumen memberikan ulasan", "Barang langsung dikirim tanpa proses"], ans: 1, exp: "Setelah pembayaran, sistem otomatis memverifikasi dan mengirim notifikasi ke penjual agar segera memproses pesanan." },
+    { q: "Apa pelajaran utama dari kisah Pak Joko dengan keripik singkongnya?", opts: ["Produk mahal selalu laku online", "Teknologi digital membantu memperluas pasar usaha kecil", "Hanya produk dari kota besar yang bisa sukses digital", "Live streaming tidak efektif untuk UMKM"], ans: 1, exp: "Pak Joko berhasil memperluas pasar dari warung lokal ke seluruh Indonesia berkat e-commerce, TikTok, dan QRIS." },
+    { q: "Apa perbedaan utama e-commerce dan social commerce?", opts: ["E-commerce lebih murah biayanya", "Social commerce menggabungkan jual-beli dengan konten media sosial", "E-commerce hanya untuk produk digital", "Social commerce tidak memerlukan pembayaran online"], ans: 1, exp: "Social commerce memanfaatkan ekosistem media sosial (hiburan, interaksi, konten) sebagai sarana jual-beli, berbeda dengan e-commerce yang murni marketplace." },
+    { q: "Shopee dan Tokopedia termasuk kategori apa?", opts: ["Social Commerce", "Omnichannel", "E-Commerce", "Teknologi POS"], ans: 2, exp: "Shopee dan Tokopedia adalah marketplace murni yang dirancang khusus sebagai pasar digital, sehingga termasuk e-commerce." },
+    { q: "Contoh penerapan omnichannel yang paling tepat adalah...", opts: ["Hanya berjualan di Instagram", "Membeli di aplikasi lalu mengambil barang di toko fisik (click & collect)", "Menggunakan 3 akun Shopee sekaligus", "Menjual di TikTok dan Tokopedia secara bersamaan"], ans: 1, exp: "Click & collect — beli lewat aplikasi dan ambil di toko fisik — adalah contoh klasik omnichannel karena menyatukan kanal digital dan fisik." },
+    { q: "Prinsip 'kontekstual' dalam pengembangan materi berarti...", opts: ["Materi menggunakan banyak istilah asing", "Materi dihubungkan dengan aktivitas jual-beli nyata sehari-hari", "Materi hanya membahas teori ekonomi murni", "Materi disusun tanpa contoh"], ans: 1, exp: "Kontekstual berarti menghubungkan teori dengan kehidupan nyata siswa, seperti pengalaman berbelanja di Shopee atau TikTok Shop." },
+    { q: "Langkah PERTAMA dalam alur transaksi ritel digital adalah...", opts: ["Konsumen membayar", "Penjual mengemas barang", "Penjual mengunggah produk ke platform", "Sistem memverifikasi pembayaran"], ans: 2, exp: "Alur dimulai saat penjual mengunggah produk beserta foto, deskripsi, dan harga ke platform digital." },
+    { q: "Manakah yang BUKAN termasuk e-wallet yang disebutkan dalam materi?", opts: ["GoPay", "OVO", "DANA", "BCA Mobile"], ans: 3, exp: "Materi menyebutkan GoPay, OVO, dan DANA sebagai contoh e-wallet. BCA Mobile adalah mobile banking, bukan e-wallet dalam konteks ini." },
+    { q: "Mengapa banyak pusat perbelanjaan konvensional sepi pengunjung?", opts: ["Harga produknya terlalu mahal", "Gagal bertransformasi ke sistem digital", "Tidak menerima pembayaran kartu kredit", "Lokasinya terlalu jauh dari rumah"], ans: 1, exp: "Ritel fisik yang tidak bertransformasi ke digital tertinggal karena konsumen modern lebih memilih berbelanja online yang praktis." },
+    { q: "Indonesia dikenal sebagai salah satu pasar ekonomi digital dengan...", opts: ["Pertumbuhan paling lambat di Asia", "Pertumbuhan tercepat di Asia Tenggara", "Nilai terbesar di Asia Timur", "Pengguna e-commerce terkecil di ASEAN"], ans: 1, exp: "Indonesia adalah salah satu pasar ekonomi digital dengan pertumbuhan tercepat di Asia Tenggara, didorong oleh platform seperti Shopee, Tokopedia, dan TikTok Shop." },
+    { q: "Teknologi POS (Point of Sale) berbasis cloud seperti Moka atau Majoo adalah contoh dari...", opts: ["Social Commerce", "E-Commerce", "Omnichannel", "Teknologi Ritel Digital"], ans: 3, exp: "Mesin kasir cloud adalah contoh penerapan Teknologi Ritel Digital secara umum — penggunaan IT untuk mengelola proses penjualan agar lebih efisien." },
+    { q: "Langkah TERAKHIR dalam alur transaksi ritel digital adalah...", opts: ["Sistem memverifikasi pembayaran", "Penjual menyerahkan ke kurir", "Konsumen menerima barang dan memberikan ulasan", "Konsumen memilih produk"], ans: 2, exp: "Siklus transaksi selesai saat konsumen menerima barang dan memberikan ulasan/rating, yang mendorong kepercayaan pembeli berikutnya." },
+    { q: "Fitur PayLater pada platform e-commerce berfungsi untuk...", opts: ["Membayar ongkos kirim gratis", "Membeli sekarang dan membayar belakangan", "Mengembalikan barang yang rusak", "Mempercepat proses pengiriman"], ans: 1, exp: "PayLater memungkinkan konsumen membeli produk terlebih dahulu dan melunasi pembayaran di kemudian hari, mirip cicilan." },
+    { q: "Pak Joko memasarkan keripiknya melalui TikTok. Ini termasuk strategi...", opts: ["E-Commerce murni", "Social Commerce", "Omnichannel", "Teknologi POS"], ans: 1, exp: "Memasarkan produk melalui video TikTok memanfaatkan ekosistem media sosial sebagai sarana jualan — itulah definisi social commerce." },
+    { q: "Prinsip 'aktual' dalam materi ini berarti...", opts: ["Materi menggunakan soal ujian lama", "Membahas perkembangan ekonomi digital dan transformasi bisnis terkini", "Materi hanya fokus pada teori klasik", "Menggunakan data dari 10 tahun lalu"], ans: 1, exp: "Aktual berarti materi membahas kondisi dan perkembangan yang sedang terjadi sekarang, seperti tren TikTok Shop dan QRIS." },
+    { q: "Instagram Shopping termasuk kategori apa dalam ritel digital?", opts: ["E-Commerce", "Social Commerce", "Omnichannel", "Marketplace B2B"], ans: 1, exp: "Instagram Shopping adalah social commerce karena jual-beli berlangsung dalam ekosistem media sosial Instagram, memanfaatkan konten visual dan interaksi." },
+    { q: "Apa tujuan utama pembelajaran materi Teknologi Ritel Digital untuk Kelas XI?", opts: ["Membuat aplikasi e-commerce sendiri", "Menjelaskan pengertian e-commerce, social commerce, dan omnichannel dengan benar", "Menghafal seluruh nama platform digital di Indonesia", "Membuka toko online di semua platform sekaligus"], ans: 1, exp: "Sesuai tujuan pembelajaran, siswa diharapkan mampu menjelaskan pengertian teknologi ritel digital beserta jenis-jenisnya dengan benar." }
+  ];
+
+  let sessionQuestions = [];
+  let currentQ = 0;
+  let results = [];
+  let timerInterval = null;
+  let timeLeft = 20;
+
+  function shuffle(arr) { return [...arr].sort(() => Math.random() - 0.5); }
+
+  function startQuiz() {
+    sessionQuestions = shuffle(allQuestions);
+    currentQ = 0;
+    results = [];
+    document.getElementById('quiz-start').style.display = 'none';
+    document.getElementById('quiz-result').style.display = 'none';
+    document.getElementById('quiz-question').style.display = 'block';
+    renderCurrentQuestion();
+  }
+
+  function renderCurrentQuestion() {
+    const q = sessionQuestions[currentQ];
+    const total = sessionQuestions.length;
+    document.getElementById('q-counter').textContent = (currentQ + 1) + ' / ' + total;
+    document.getElementById('q-progress-bar').style.width = ((currentQ / total) * 100) + '%';
+    document.getElementById('q-text').textContent = (currentQ + 1) + '. ' + q.q;
+    document.getElementById('q-explanation').style.display = 'none';
+    document.getElementById('q-next-btn').style.display = 'none';
+    const optsEl = document.getElementById('q-opts');
+    optsEl.innerHTML = q.opts.map((o, i) =>
+      `<div class="quiz-opt" id="opt-${i}" onclick="pickAnswer(${i})">${o}</div>`
+    ).join('');
+    startTimer();
+  }
+
+  function startTimer() {
+    clearInterval(timerInterval);
+    timeLeft = 20;
+    const box = document.getElementById('q-timer-box');
+    box.textContent = timeLeft;
+    box.style.color = 'var(--accent4)';
+    timerInterval = setInterval(() => {
+      timeLeft--;
+      box.textContent = timeLeft;
+      if (timeLeft <= 5) box.style.color = '#f87171';
+      if (timeLeft <= 0) {
+        clearInterval(timerInterval);
+        timeoutQuestion();
+      }
+    }, 1000);
+  }
+
+  function timeoutQuestion() {
+    const q = sessionQuestions[currentQ];
+    results.push({ picked: -1, correct: q.ans, timeout: true });
+    document.querySelectorAll('.quiz-opt').forEach(o => o.style.pointerEvents = 'none');
+    document.getElementById('opt-' + q.ans).classList.add('correct');
+    showExplanation(q.exp, false, true);
+    document.getElementById('q-next-btn').style.display = 'inline-block';
+    document.getElementById('q-next-btn').textContent = currentQ + 1 < sessionQuestions.length ? 'Soal Berikutnya →' : 'Lihat Hasil 🏁';
+  }
+
+  function pickAnswer(oi) {
+    clearInterval(timerInterval);
+    const q = sessionQuestions[currentQ];
+    const correct = oi === q.ans;
+    results.push({ picked: oi, correct: q.ans, timeout: false });
+    document.querySelectorAll('.quiz-opt').forEach(o => o.style.pointerEvents = 'none');
+    document.getElementById('opt-' + oi).classList.add(correct ? 'correct' : 'wrong');
+    if (!correct) document.getElementById('opt-' + q.ans).classList.add('correct');
+    showExplanation(q.exp, correct, false);
+    document.getElementById('q-next-btn').style.display = 'inline-block';
+    document.getElementById('q-next-btn').textContent = currentQ + 1 < sessionQuestions.length ? 'Soal Berikutnya →' : 'Lihat Hasil 🏁';
+  }
+
+  function showExplanation(text, correct, timeout) {
+    const el = document.getElementById('q-explanation');
+    const icon = timeout ? '⏰' : (correct ? '✅' : '❌');
+    const prefix = timeout ? 'Waktu habis! ' : (correct ? 'Benar! ' : 'Kurang tepat. ');
+    el.style.display = 'block';
+    el.style.background = timeout ? 'rgba(245,158,11,0.07)' : (correct ? 'rgba(16,185,129,0.07)' : 'rgba(239,68,68,0.07)');
+    el.style.borderColor = timeout ? 'rgba(245,158,11,0.25)' : (correct ? 'rgba(16,185,129,0.2)' : 'rgba(239,68,68,0.2)');
+    el.innerHTML = `${icon} <strong>${prefix}</strong>${text}`;
+  }
+
+  function nextQuestion() {
+    currentQ++;
+    if (currentQ >= sessionQuestions.length) { showResult(); return; }
+    document.getElementById('quiz-question').style.display = 'block';
+    renderCurrentQuestion();
+  }
+
+  function showResult() {
+    clearInterval(timerInterval);
+    document.getElementById('quiz-question').style.display = 'none';
+    const correct = results.filter(r => r.picked === r.correct).length;
+    const wrong = results.filter(r => r.picked !== r.correct && !r.timeout).length;
+    const timeout = results.filter(r => r.timeout).length;
+    const pct = Math.round(correct / sessionQuestions.length * 100);
+    const emojis = ['😢','😅','🙂','😊','😎','🏆'];
+    const msgs = ['Jangan menyerah, pelajari lagi materinya!','Terus semangat belajar!','Lumayan, kamu sudah paham sebagian!','Bagus! Tinggal sedikit lagi sempurna.','Hampir sempurna, keren!','Nilai sempurna! Kamu ahlinya!'];
+    const idx = Math.min(Math.floor(pct / 20), 5);
+    document.getElementById('result-emoji').textContent = emojis[idx];
+    document.getElementById('result-score').textContent = correct + ' / ' + sessionQuestions.length + ' (' + pct + '%)';
+    document.getElementById('result-msg').textContent = msgs[idx];
+    document.getElementById('res-correct').textContent = correct;
+    document.getElementById('res-wrong').textContent = wrong;
+    document.getElementById('res-time').textContent = timeout;
+    // Review list
+    const rev = document.getElementById('result-review');
+    rev.innerHTML = '<div style="font-size:0.8rem;font-weight:700;margin-bottom:0.5rem;color:var(--muted);">REVIEW JAWABAN</div>' +
+      results.map((r, i) => {
+        const q = sessionQuestions[i];
+        const isCorrect = r.picked === r.correct;
+        const icon = r.timeout ? '⏰' : (isCorrect ? '✅' : '❌');
+        const color = r.timeout ? 'var(--accent4)' : (isCorrect ? 'var(--accent3)' : '#f87171');
+        return `<div style="background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:0.7rem 1rem;display:flex;gap:0.7rem;align-items:flex-start;">
+          <span style="font-size:0.9rem;min-width:20px;">${icon}</span>
+          <div style="flex:1;">
+            <div style="font-size:0.8rem;font-weight:600;margin-bottom:0.2rem;">${i+1}. ${q.q}</div>
+            ${!isCorrect && !r.timeout ? `<div style="font-size:0.75rem;color:#f87171;">Jawabanmu: ${q.opts[r.picked]}</div>` : ''}
+            <div style="font-size:0.75rem;color:${color};">${r.timeout ? 'Waktu habis — ' : ''}Jawaban benar: ${q.opts[r.correct]}</div>
+          </div>
+        </div>`;
+      }).join('');
+    document.getElementById('quiz-result').style.display = 'block';
+  }
+
+  function resetQuiz() {
+    document.getElementById('quiz-result').style.display = 'none';
+    document.getElementById('quiz-start').style.display = 'block';
+  }
+</script>
+</body>
+</html>
